@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To Do List</title>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+    color: white;
+}
+body {
+    background: linear-gradient(130deg, black, rgb(48,42,42));
+}
+h1, h2 {
+    text-align: center;
+    margin-top: 20px;
+}
+.task-container {
+    width: 80%;
+    height: 70vh;
+    border: 2px solid rgb(116, 222, 249);
+    margin: 30px auto;
+}
+.task-input {
+    width: 100%;
+    height: 10vh;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 10px;
+}
+.task-input input {
+    width: 70%;
+    height: 90%;
+    font-size: 18px;
+    padding-left: 30px;
+    color: black;
+    border-radius: 40px;
+    border: none;
+    outline: none;
+}
+.task-input button {
+    width: 130px;
+    height: 90%;
+    color: white;
+    background-color: rgb(116, 222, 249);
+    border: none;
+    border-radius: 30px;
+    font-size: 18px;
+}
+.task-item {
+    width: 100%;
+    height: 40vh;
+    margin-top: 20px;
+}
+ul li {
+    list-style: none;
+    padding: 20px;
+    background-color: #efefef;
+    color: black;
+    font-size: 20px;
+    margin: 10px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+ul li .icons {
+    display: flex;
+    gap: 10px;
+}
+ul li span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    color: white;
+    background-color: rgb(116, 222, 249);
+    font-size: 28px;
+    cursor: pointer;
+    border-radius: 50%;
+}
+ul li:hover {
+    background-color: gainsboro;
+}
+ul li span:hover {
+    background-color: rgb(131, 201, 218);
+}
+</style>
+</head>
+<body>
+    <h1>Task-Organizer App</h1>
+    <div class="task-container">
+        <div class="task-input">
+            <input type="text" placeholder="Enter Task to be Added" id="input-task">
+            <button onclick="AddTask()">Add Task</button>
+        </div>
+        <h2>Tasks to Do</h2>
+        <div class="task-item">
+            <ul class="list-container">
+            </ul>
+        </div>
+    </div>
+    <script>
+        document.getElementById("input-task").addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                AddTask();
+            }
+        });
+
+        function loadTasks() {
+            const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+            tasks.forEach(task => {
+                addTaskToDOM(task);
+            });
+        }
+
+        function addTaskToDOM(task) {
+            let ul = document.querySelector(".list-container");
+            let li = document.createElement("li");
+
+            li.innerHTML = `<div class="task-text" style="color:black;">Task: ${task.text}</div>`;
+            ul.appendChild(li);
+
+            let icons = document.createElement("div");
+            icons.className = "icons";
+
+            let checkSpan = document.createElement("SPAN");
+            checkSpan.innerHTML = "\u2714";  
+            checkSpan.className = "Check";  
+
+            let deleteSpan = document.createElement("SPAN");
+            deleteSpan.innerHTML = "\u00D7";
+            deleteSpan.className = "Delete";
+
+            icons.appendChild(checkSpan);
+            icons.appendChild(deleteSpan);
+            li.appendChild(icons);
+
+            deleteSpan.onclick = function () {
+                li.remove();
+                removeTaskFromLocalStorage(task.text);
+            };
+
+            checkSpan.onclick = function() {
+                let taskText = this.parentElement.previousElementSibling;
+                taskText.style.textDecoration = "line-through";
+                this.parentElement.parentElement.style.backgroundColor = "green";
+                this.style.backgroundColor = "darkgreen";
+                this.nextElementSibling.style.backgroundColor = "darkgreen";
+            };
+        }
+
+        function AddTask() {
+            let taskInput = document.getElementById("input-task");
+            let task = taskInput.value;
+
+            if (task === "") {
+                alert("Task cannot be empty!");
+            } else {
+                addTaskToDOM({ text: task });
+                saveTaskToLocalStorage({ text: task });
+            }
+
+            taskInput.value = "";
+        }
+
+        function saveTaskToLocalStorage(task) {
+            const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+            tasks.push(task);
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+        }
+
+        function removeTaskFromLocalStorage(taskText) {
+            const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+            const updatedTasks = tasks.filter(task => task.text !== taskText);
+            localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+        }
+
+        loadTasks();
+
+    </script>
+</body>
+</html>
